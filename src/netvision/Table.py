@@ -1,3 +1,6 @@
+
+import uuid
+
 from netvision.ChartGenerator import Chart
 
 
@@ -16,6 +19,8 @@ class Table:
         self.td_row_title_str = None
         self.width_percentage = None
         self.row_title_weight = 5.
+
+        self.unique_id = str(uuid.uuid1())
 
     def add_column(self, title):
         if self.are_columns_fixed:
@@ -58,17 +63,24 @@ class Table:
     def _make_td_str(self):
         self.width_percentage = 100. / float(len(self.columns) * self.row_title_weight + 1)
         self.td_str = f"<td align=\"center\" width=\"{self.row_title_weight * self.width_percentage}%\">"
+        self.th_row_title_str = f"<th style=\"font-weight: bold;\" align=\"center\" width=\"{self.width_percentage}%\">"
         self.td_row_title_str = f"<td style=\"font-weight: bold;\" align=\"center\" width=\"{self.width_percentage}%\">"
         self.td_str_bold = f"<td style=\"font-weight: bold;\" align=\"center\" width=\"{self.width_percentage}%\">"
 
     def __str__(self):
         self._make_td_str()
-        data = "<table width=100%>\n"
+        data = f"<table id=\"{self.unique_id}\" width=100% class=\"tablesorter-dropbox\">\n"
         # Columns titles
-        data += f"<tr>\n{self.td_row_title_str}{self.title}</td>\n{self.td_str_bold}"
+        data += "<thead>\n"
+        data += f"<tr>\n{self.th_row_title_str}{self.title}</th>\n{self.td_str_bold}"
         data += f"</td>\n{self.td_str_bold}".join([x for x in self.columns])
         data += "</td>\n</tr>\n"
+        data += "</thead>\n"
         # Rows
+        data += "<tbody>\n"
         data += "\n".join(self.rows)
+        data += "</tbody>\n"
         data += "</table>\n"
+
+        data += "<script type=\"text/javascript\">$(function() { $(\"#" + self.unique_id + "\").tablesorter();}); </script>"
         return data
