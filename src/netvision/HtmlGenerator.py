@@ -1,16 +1,16 @@
 from os.path import abspath
 import pickle
 from shutil import copy
-from os.path import join, exists, splitext
+from os.path import join, exists, splitext, dirname
 from os import makedirs
 
 from .MeshGenerator import Mesh
 import netvision.ChartGenerator as ChartGenerator
-import netvision.MeshGenerator as MeshGenerator 
-import netvision.Table as Table 
-import netvision.ConfusionMatrixGenerator as ConfusionMatrixGenerator 
+import netvision.MeshGenerator as MeshGenerator
+import netvision.Table as Table
+import netvision.ConfusionMatrixGenerator as ConfusionMatrixGenerator
 """
-TODO : 
+TODO :
 
 Zoom curves
 make minified version of javascript
@@ -77,6 +77,18 @@ class HtmlGenerator:
         self.head.append(" <style> .hor-bar { width:100%; background-color:black;  height:1px;   }"
                          " h3{  margin-top:10px; } </style>")
 
+        # theme for the table
+        with open(join(dirname(__file__), "css/theme.dropbox.min.css"), "r") as stream_file:
+            self.head.append("  <style>\n  " + stream_file.read().replace("\n", "\n  ") +  "</style>\n")
+
+        # jquery
+        for file_path in ["js/jquery.js", "js/jquery.tablesorter.min.js", "js/jquery.tablesorter.widgets.js"]:
+            with open(join(dirname(__file__), file_path), "r") as stream_file:
+                self.head.append("  <script type=\"text/javascript\">\n  " + stream_file.read().replace("\n", "\n  ") +  "</script>\n")
+
+
+
+
     def add_javascript_libraries(self):
         pass
 
@@ -92,7 +104,7 @@ class HtmlGenerator:
         self.body_str = "".join([str(self._pretreat_data(x)) for x in self.body])
 
         end_html = "</html>\n"
-        webpage = begin_html + self.head_str + self.meshGen.end_mesh() +  "</body>\n" + self.body_str + '</head>\n' + end_html
+        webpage = begin_html + self.head_str + self.meshGen.end_mesh() +  "</head>\n" + self.body_str + '</body>\n' + end_html
         if self.path is not None:
             with open(self.path, 'w') as output_file:
                 output_file.write(webpage)
@@ -194,7 +206,7 @@ class HtmlGenerator:
             mesh_path = join(self.image_folder_relative_html, pict_new_name)  # Path to use in html code
             self.pict_it += 1
             if normalize:
-                Mesh(out_pict_file)            
+                Mesh(out_pict_file)
         return self.meshGen.make_mesh(mesh_path, title)
 
     def add_table(self, title=""):
