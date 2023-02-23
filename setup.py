@@ -45,6 +45,7 @@ if __name__ == '__main__':
         packages=find_packages(where='src'),
         package_dir={'':'src'},
         include_package_data=True,
+        package_data={'.src':['*.css']},
 
         install_requires=[
             'numpy',
